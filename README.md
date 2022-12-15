@@ -1,4 +1,3 @@
-# jenkins-pipeline-demo
 # Workshop CI/CD with Jenkins
 * [Install with Docker](https://github.com/up1/workshop-ci-cd-with-jenkins/tree/main/workshop/install](https://github.com/warozz/jenkins-pipeline-demo/tree/main/install))
 * Declarative pipeline
