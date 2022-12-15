@@ -1,5 +1,6 @@
 # Workshop CI/CD with Jenkins
-* [Install with Docker](https://github.com/up1/workshop-ci-cd-with-jenkins/tree/main/workshop/install](https://github.com/warozz/jenkins-pipeline-demo/tree/main/install))
+* [Install with Docker](https://github.com/warozz/jenkins-pipeline-demo/tree/main/install)
+* [Install SonarQube container ใช้คู่กับ Jenkins container](https://medium.com/@d3vmobiz/install-sonarqube-container-ใช้คู่กับ-jenkins-container-e0d9602af9a6)
 * Declarative pipeline
   * Structure of pipeline
     * Agent
