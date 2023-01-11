@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk
+FROM jenkins/ssh-agent:jdk11
 LABEL MAINTAINER="Nicolas De Loof "
 
 ARG user=jenkins
