@@ -1,34 +1,41 @@
-FROM jenkins/ssh-agent:jdk11
-LABEL MAINTAINER="Nicolas De Loof "
+ARG JAVA_VERSION="11.0.15_10"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-alpine
 
+ARG VERSION=4.13
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
-ARG JENKINS_AGENT_HOME=/home/${user}
 
-ENV JENKINS_AGENT_HOME ${JENKINS_AGENT_HOME}
+RUN addgroup -g ${gid} ${group}
+RUN adduser -h /home/${user} -u ${uid} -G ${group} -D ${user}
+LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
-RUN groupadd -g ${gid} ${group} \
-    && useradd -d "${JENKINS_AGENT_HOME}" -u "${uid}" -g "${gid}" -m -s /bin/bash "${user}"
+ARG AGENT_WORKDIR=/home/${user}/agent
 
-# setup SSH server
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y openssh-server \
-    && rm -rf /var/lib/apt/lists/*
-RUN sed -i /etc/ssh/sshd_config \
-        -e 's/#PermitRootLogin.*/PermitRootLogin no/' \
-        -e 's/#RSAAuthentication.*/RSAAuthentication yes/'  \
-        -e 's/#PasswordAuthentication.*/PasswordAuthentication no/' \
-        -e 's/#SyslogFacility.*/SyslogFacility AUTH/' \
-        -e 's/#LogLevel.*/LogLevel INFO/' && \
-    mkdir /var/run/sshd
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-VOLUME "${JENKINS_AGENT_HOME}" "/tmp" "/run" "/var/run"
-WORKDIR "${JENKINS_AGENT_HOME}"
+RUN apk add --update --no-cache curl bash git git-lfs musl-locales openssh-client openssl procps \
+  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
+  && chmod 755 /usr/share/jenkins \
+  && chmod 644 /usr/share/jenkins/agent.jar \
+  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
+  && apk del --purge curl \
+  && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-COPY setup-sshd /usr/local/bin/setup-sshd
+USER ${user}
+ENV AGENT_WORKDIR=${AGENT_WORKDIR}
+RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
 
-EXPOSE 22
+VOLUME /home/${user}/.jenkins
+VOLUME ${AGENT_WORKDIR}
+WORKDIR /home/${user}
 
-ENTRYPOINT ["setup-sshd"]
+LABEL \
+    org.opencontainers.image.vendor="Jenkins project" \
+    org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \
+    org.opencontainers.image.description="This is a base image, which provides the Jenkins agent executable (agent.jar)" \
+    org.opencontainers.image.version="${VERSION}" \
+    org.opencontainers.image.url="https://www.jenkins.io/" \
+    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
+    org.opencontainers.image.licenses="MIT"
