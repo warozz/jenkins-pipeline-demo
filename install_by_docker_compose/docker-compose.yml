@@ -8,15 +8,15 @@
       ports:
         - 8080:8080
         - 50000:50000
-      container_name: jenkins
+      container_name: my_jenkins
       volumes:
-        - /home/${myname}/jenkins_compose/jenkins_configuration:/var/jenkins_home
+        - /Users/WRR/Documents/jenkins_configuration:/var/jenkins_home
         - /var/run/docker.sock:/var/run/docker.sock
     agent:
       image: jenkins/ssh-agent:jdk11
       privileged: true
       user: root
-      container_name: agent
+      container_name: agent_jdk11
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
       expose:

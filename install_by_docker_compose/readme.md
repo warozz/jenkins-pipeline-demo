@@ -1,1 +1,6 @@
-**docker compose up -d
+## Steps to run
+
+Build image
+```
+$docker compose up -d
+```
